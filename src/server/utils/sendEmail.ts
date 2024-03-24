@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-        user: "hussainbadri786@gmail.com",
-        pass: "imre bstc iyca eplq",
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD,
     },
 });
 
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 
 export const sendMail = async (receiver: string, code: string) => {
     const info = await transporter.sendMail({
-        from: '"Hussain Calcuttawala" <hussainbadri786@gmail.com>',
+        from: `"Hussain Calcuttawala" <${process.env.SMTP_USERNAME}>`,
         to: receiver,
         subject: "Verification code for Ecomm",
         html: `<b>Your verification code is ${code.toUpperCase()}</b>`,

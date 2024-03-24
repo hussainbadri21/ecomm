@@ -1,13 +1,17 @@
 'use client'
-import React, { useEffect, useState } from "react"
+import React, { useContext, useState } from "react"
 import Container from "../Container"
 import { api } from '~/trpc/react'
 import { toast } from 'react-toastify';
+import UserContext from '~/app/utils/userContext';
+import { useRouter } from 'next/navigation'
 
 const RegistrationForm = () => {
+    const router = useRouter()
     const registerUser = api.user.signup.useMutation({
         onSuccess: (data) => {
             toast.success(`Account created successfully! Verification code ${data.code.toLocaleUpperCase()} sent to your email.`);
+            router.push(`/verify`)
         },
         onError: (error) => {
             toast.error(error.message);
@@ -41,8 +45,11 @@ const RegistrationForm = () => {
             setErrorMsg('Password must be at least 6 characters');
             return;
         }
-        registerUser.mutate({ ...formData, password: btoa(formData.password), code: Math.random().toString(36).slice(2, 10), status: 1 })
+        const code = Math.random().toString(36).slice(2, 10);
+        setUserData({ name: formData.name, email: formData.email, code })
+        registerUser.mutate({ ...formData, password: btoa(formData.password), code, status: 1 })
     }
+    const { setUserData } = useContext(UserContext);
 
     return (
         <Container type="signup">
