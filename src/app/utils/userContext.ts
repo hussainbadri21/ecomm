@@ -1,9 +1,11 @@
+'use client'
 import { createContext } from 'react';
 
 type userData = {
     code?: string;
     name?: string;
     email?: string;
+    password?: string;
 }
 
 const UserContext = createContext<{

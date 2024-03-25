@@ -10,8 +10,11 @@ import PasswordField from "~/app/_components/Fields/Password";
 
 const RegistrationForm = () => {
     const router = useRouter()
+    const { setUserData } = useContext(UserContext);
+
     const registerUser = api.user.signup.useMutation({
         onSuccess: (data) => {
+            setUserData(data)
             sessionStorage.setItem('token', btoa(`${data.name}${data.email}${data.password}`))
             toast.success(`Account created successfully! Verification code ${data.code.toLocaleUpperCase()} sent to your email.`);
             router.push(`/verify`)
@@ -49,10 +52,8 @@ const RegistrationForm = () => {
             return;
         }
         const code = Math.random().toString(36).slice(2, 10);
-        setUserData({ name: formData.name, email: formData.email, code })
         registerUser.mutate({ ...formData, password: btoa(formData.password), code, status: 1 })
     }
-    const { setUserData } = useContext(UserContext);
 
     return (
         <Container type="signup">

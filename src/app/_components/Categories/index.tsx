@@ -3,10 +3,25 @@ import Container from "../Container"
 import { api } from '~/trpc/react'
 import { useState } from "react"
 import Paginator from "~/app/_components/Paginator"
+import UserContext from '~/app/utils/userContext';
+import React, { useContext } from "react"
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify';
 
 const CategoriesForm = () => {
     const [page, setPage] = useState(1);
-    const categoryData = api.category.fetch.useQuery({ page });
+    const { userData } = useContext(UserContext);
+    const router = useRouter()
+
+    console.log(sessionStorage.getItem('token'),)
+
+    const categoryData = api.category.fetch.useQuery({ page, token: sessionStorage.getItem('token') === btoa(`${userData.name}${userData.email}${userData.password}`) });
+
+    if (categoryData.isError) {
+        toast.error('You need to be logged in to access this page');
+        router.push(`/login`)
+    }
+
     return (
         <Container type="categories" >
             <div className="flex flex-col w-3/4 py-8 sm:pt-4 -mb-8 text2xl text-center text-black">
