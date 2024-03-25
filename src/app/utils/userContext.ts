@@ -6,6 +6,7 @@ type userData = {
     name?: string;
     email?: string;
     password?: string;
+    categories?: string[]
 }
 
 const UserContext = createContext<{

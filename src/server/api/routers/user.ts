@@ -76,4 +76,28 @@ export const userRouter = createTRPCRouter({
         });
       }
     }),
+  updateCategories: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      token: z.boolean().default(false),
+      categories: z.array(z.string())
+    })).mutation(async ({ ctx, input }) => {
+      if (input.token) {
+        const res = await ctx.db.user.update({
+          where: {
+            email: input.email,
+          },
+          data: {
+            categories: input.categories,
+          },
+        });
+        return res
+      } else {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Session Invalid. Please relogin',
+        });
+      }
+    }),
+
 });

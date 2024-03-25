@@ -1,7 +1,7 @@
 'use client'
 import Container from "../Container"
 import { api } from '~/trpc/react'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Paginator from "~/app/_components/Paginator"
 import UserContext from '~/app/utils/userContext';
 import React, { useContext } from "react"
@@ -12,8 +12,7 @@ const CategoriesForm = () => {
     const [page, setPage] = useState(1);
     const { userData } = useContext(UserContext);
     const router = useRouter()
-
-    console.log(sessionStorage.getItem('token'),)
+    const [categories, setCategories] = useState<Set<string>>(new Set(userData?.categories ?? []))
 
     const categoryData = api.category.fetch.useQuery({ page, token: sessionStorage.getItem('token') === btoa(`${userData.name}${userData.email}${userData.password}`) });
 
@@ -21,6 +20,31 @@ const CategoriesForm = () => {
         toast.error('You need to be logged in to access this page');
         router.push(`/login`)
     }
+
+    const registerUser = api.user.updateCategories.useMutation({
+        onSuccess: (data) => {
+            console.log('Categories updated successfully')
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        }
+    });
+
+    const onCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault()
+        let newCategories = new Set(categories)
+        e.target.checked ? newCategories.add(e.target.value) : newCategories.delete(e.target.value)
+        setCategories(newCategories)
+    }
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            registerUser.mutate({ email: userData?.email ?? '', categories: Array.from(categories), token: sessionStorage.getItem('token') === btoa(`${userData.name}${userData.email}${userData.password}`) });
+        }, 300);
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [categories])
 
     return (
         <Container type="categories" >
@@ -31,7 +55,7 @@ const CategoriesForm = () => {
                     <div className="flex flex-col justify-center items-start mt-4">
                         {categoryData?.data?.[1]?.map((category) =>
                             <div className="mt-1" key={category.id}>
-                                <input type="checkbox" />
+                                <input checked={categories.has(category.id.toString())} type="checkbox" value={category.id} onChange={onCheckboxChange} />
                                 <label>{category.name}</label>
                             </div>
                         )}

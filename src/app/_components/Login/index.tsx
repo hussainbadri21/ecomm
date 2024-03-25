@@ -60,7 +60,7 @@ const LoginForm = () => {
                 <EmailField {...{ formData, setFormData }} />
                 <PasswordField {...{ formData, setFormData }} />
                 {errorMsg && errorMsg.length > 0 && <div className="text-red-500 font-bold pt-4">{errorMsg}</div>}
-                <button disabled={loginUser.isPending} className="bg-black hover:bg-gray-700 text-white font-bold py-4 px-4 rounded mt-8 uppercase" type="submit"> {loginUser.isPending ? 'Logging in...' : 'Login'}</button>
+                <button disabled={loginUser.isPending} className="bg-black hover:bg-gray-700 text-white font-bold py-4 px-4 rounded mt-8 uppercase cursor-pointer" type="submit"> {loginUser.isPending ? 'Logging in...' : 'Login'}</button>
             </form >
             <div className="border  border-solid mt-8 border-gray-300 w-3/4" />
         </Container >
