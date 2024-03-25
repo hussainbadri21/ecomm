@@ -27,4 +27,53 @@ export const userRouter = createTRPCRouter({
         });
       }
     }),
+  login: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+      password: z.string().min(6),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: {
+          email: input.email,
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Account with this email does not exist. Please sign up',
+        });
+      }
+
+      if (user.password !== input.password) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'Incorrect password',
+        });
+      }
+
+      return user;
+    }),
+  verify: publicProcedure
+    .input(z.object({
+      email: z.string().email(),
+    })).mutation(async ({ ctx, input }) => {
+      try {
+        const res = await ctx.db.user.update({
+          where: {
+            email: input.email,
+          },
+          data: {
+            emailVerified: true,
+          },
+        });
+        return res
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Something went wrong, please try again later.',
+        });
+      }
+    }),
 });

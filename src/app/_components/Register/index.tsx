@@ -5,11 +5,14 @@ import { api } from '~/trpc/react'
 import { toast } from 'react-toastify';
 import UserContext from '~/app/utils/userContext';
 import { useRouter } from 'next/navigation'
+import EmailField from '~/app/_components/Fields/Email'
+import PasswordField from "~/app/_components/Fields/Password";
 
 const RegistrationForm = () => {
     const router = useRouter()
     const registerUser = api.user.signup.useMutation({
         onSuccess: (data) => {
+            sessionStorage.setItem('token', btoa(`${data.name}${data.email}${data.password}`))
             toast.success(`Account created successfully! Verification code ${data.code.toLocaleUpperCase()} sent to your email.`);
             router.push(`/verify`)
         },
@@ -56,13 +59,8 @@ const RegistrationForm = () => {
             <form className="flex flex-col w-3/4 pt-8" onSubmit={handleSubmit} autoComplete="off" >
                 <label className='text-black' htmlFor="name">Name</label>
                 <input className="p-2 rounded" type="text" id="name" name="name" placeholder="Enter your name" onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-
-                <label className='text-black pt-8' htmlFor="email">Email</label>
-                <input className="p-2 rounded" type="email" id="email" name="email" placeholder="Enter your email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-
-                <label className='text-black pt-8' htmlFor="password">Password</label>
-                <input className="p-2 rounded" type="password" id="password" name="password" placeholder="Enter a password" onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-
+                <EmailField {...{ formData, setFormData }} />
+                <PasswordField {...{ formData, setFormData }} />
                 {errorMsg && errorMsg.length > 0 && <div className="text-red-500 font-bold pt-4">{errorMsg}</div>}
 
                 <button disabled={registerUser.isPending} className="cursor-pointer bg-black hover:bg-gray-700 text-white font-bold py-4 px-4 rounded mt-8 uppercase" type="submit"> {registerUser.isPending ? 'Submitting...' : 'Create account'}</button>

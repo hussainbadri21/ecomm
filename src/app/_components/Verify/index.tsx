@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useContext } from "react";
 import UserContext from '~/app/utils/userContext';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation'
+import { api } from '~/trpc/react'
 
 const length = 8;
 
@@ -17,6 +18,16 @@ const VerificationBox = () => {
             inputRefs.current[0].focus();
         }
     }, []);
+
+    const verifyUser = api.user.verify.useMutation({
+        onSuccess: (data) => {
+            toast.success(`Email verified successfully. Welcome to ECOMMERCE, ${userData.name}!`);
+            router.push(`/categories`)
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        }
+    });
 
     const handleChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -51,11 +62,10 @@ const VerificationBox = () => {
     const { userData } = useContext(UserContext);
     const onOtpSubmit = () => {
         const enteredOTP = otp.join('').trim();
-        console.log(userData.code, enteredOTP)
         if (enteredOTP.length === length) {
             if (enteredOTP.toLocaleUpperCase() === userData.code?.toLocaleUpperCase()) {
-                toast.success(`Email verified successfully. Welcome to Ecomm ${userData.name}!`);
-                router.push(`/categories`)
+                verifyUser.mutate({ email: userData.email ?? '' })
+
             } else {
                 toast.error(`Invalid code. Please try again.`);
             }
