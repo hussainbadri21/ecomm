@@ -20,12 +20,9 @@ const VerificationBox = () => {
     }, []);
 
     const verifyUser = api.user.verify.useMutation({
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast.success(`Email verified successfully. Welcome to ECOMMERCE, ${userData.name}!`);
             router.push(`/categories`)
-        },
-        onError: (error) => {
-            toast.error(error.message);
         }
     });
 
@@ -95,7 +92,7 @@ const VerificationBox = () => {
                         );
                     })}
                 </div>
-                <button onClick={onOtpSubmit} className=" cursor-pointer bg-black hover:bg-gray-700 text-white font-bold py-4 px-4 rounded mt-8 uppercase" type="submit">Verify</button>
+                <button disabled={verifyUser.isPending} onClick={onOtpSubmit} className=" cursor-pointer bg-black hover:bg-gray-700 text-white font-bold py-4 px-4 rounded mt-8 uppercase" type="submit">{verifyUser.isPending ? 'Verifying...' : 'Verify'}</button>
 
             </div>
 
